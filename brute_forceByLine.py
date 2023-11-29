@@ -3,12 +3,14 @@ import logging
 import chardet
 
 def read_file(file_path):
-    def line_generator(file_path):
-        with open(file_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                yield line.strip()
-
-    return line_generator(file_path)
+    with open(file_path, 'rb') as file:
+        rawdata = file.read()
+    result = chardet.detect(rawdata)
+    encoding = result['encoding']
+    print(encoding)
+    
+    with open(file_path, 'r', encoding=encoding) as file:
+        return [line.strip() for line in file]
 
 
 def try_login(target, username, password, cookies):
@@ -20,6 +22,7 @@ def brute_force(target, usernames, passwords, cookies):
     for username in usernames:
         for password in passwords:
             logging.info(f"Trying username = {username} password = {password}")
+            print(f"Trying username = {username} password = {password}")
             if try_login(target, username, password, cookies):
                 logging.info(f"Found credentials: username = {username} password = {password}")
                 return username, password
